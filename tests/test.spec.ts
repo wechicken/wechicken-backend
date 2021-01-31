@@ -1,7 +1,7 @@
 import UserTest from './UserTest'
+import BlogTest from './BlogTest'
 // import BatchTest from './BatchTest'
-// import BlogTest from './BlogTest'
 
 UserTest()
+BlogTest()
 // BatchTest()
-// BlogTest()

@@ -7,7 +7,7 @@ interface validateFieldsInput {
 const validateFields = ({ requested, allowed, option }: validateFieldsInput) => {
   const mapper = {
     every: () => allowed.every((field) => requested.includes(field)),
-    some: () => allowed.some((field) => requested.includes(field)),
+    some: () => requested.every((field) => allowed.includes(field)),
   }
 
   return mapper[option]()
