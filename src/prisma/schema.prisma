@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_DEV")
+}
+
+model batch_types {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  batches batches[]
+}
+
+model batches {
+  id             Int         @id @default(autoincrement())
+  batch_type_id  Int
+  manager_id     Int?
+  nth            Int         @unique
+  title          String?
+  penalty        Int?
+  is_page_opened Boolean
+  created_at     DateTime    @default(now())
+  updated_at     DateTime?
+  deleted_at     DateTime?
+  batch_types    batch_types @relation(fields: [batch_type_id], references: [id])
+  users          users[]
+
+  @@index([batch_type_id], name: "FK_batches_batch_type_id_batch_types_id")
+}
+
+model blog_types {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  users users[]
+}
+
+model blogs {
+  id           Int         @id @default(autoincrement())
+  user_id      Int
+  title        String
+  subtitle     String?
+  link         String
+  thumbnail    String?
+  written_date DateTime
+  created_at   DateTime    @default(now())
+  updated_at   DateTime?
+  deleted_at   DateTime?
+  users        users       @relation(fields: [user_id], references: [id])
+  bookmarks    bookmarks[]
+  likes        likes[]
+  tags         tags[]
+
+  @@index([user_id], name: "FK_blogs_user_id_users_id")
+}
+
+model bookmarks {
+  id      Int     @id @default(autoincrement())
+  blog_id Int
+  user_id Int
+  status  Boolean
+  blogs   blogs   @relation(fields: [blog_id], references: [id])
+  users   users   @relation(fields: [user_id], references: [id])
+
+  @@index([blog_id], name: "FK_bookmarks_blog_id_blogs_id")
+  @@index([user_id], name: "FK_bookmarks_user_id_users_id")
+}
+
+model follows {
+  id          Int   @id @default(autoincrement())
+  follower_id Int
+  followee_id Int
+  followee    users @relation("follows_followee_idTousers", fields: [followee_id], references: [id])
+  follower    users @relation("follows_follower_idTousers", fields: [follower_id], references: [id])
+
+  @@index([followee_id], name: "FK_follows_followee_id_users_id")
+  @@index([follower_id], name: "FK_follows_follower_id_users_id")
+}
+
+model likes {
+  id      Int     @id @default(autoincrement())
+  blog_id Int
+  user_id Int
+  status  Boolean
+  blogs   blogs   @relation(fields: [blog_id], references: [id])
+  users   users   @relation(fields: [user_id], references: [id])
+
+  @@index([blog_id], name: "FK_likes_blog_id_blogs_id")
+  @@index([user_id], name: "FK_likes_user_id_users_id")
+}
+
+model tags {
+  id      Int    @id @default(autoincrement())
+  blog_id Int
+  user_id Int
+  name    String @unique
+  blogs   blogs  @relation(fields: [blog_id], references: [id])
+  users   users  @relation(fields: [user_id], references: [id])
+
+  @@index([blog_id], name: "FK_tags_blog_id_blogs_id")
+  @@index([user_id], name: "FK_tags_user_id_users_id")
+}
+
+model users {
+  id              Int         @id @default(autoincrement())
+  blog_type_id    Int?
+  batch_id        Int
+  gmail_id        String      @unique
+  gmail           String      @unique
+  blog_address    String
+  name            String
+  thumbnail       String?
+  is_admin        Boolean
+  is_group_joined Boolean
+  created_at      DateTime    @default(now())
+  updated_at      DateTime?
+  deleted_at      DateTime?
+  batches         batches     @relation(fields: [batch_id], references: [id])
+  blog_types      blog_types? @relation(fields: [blog_type_id], references: [id])
+  blogs           blogs[]
+  bookmarks       bookmarks[]
+  followees       follows[]   @relation("follows_followee_idTousers")
+  followers       follows[]   @relation("follows_follower_idTousers")
+  likes           likes[]
+  tags            tags[]
+
+  @@index([batch_id], name: "FK_users_batch_id_batches_id")
+  @@index([blog_type_id], name: "FK_users_blog_type_id_blog_types_id")
+}
