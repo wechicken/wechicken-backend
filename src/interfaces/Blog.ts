@@ -1,7 +1,8 @@
 export interface blogsSearchOption {
   offset?: number
   limit?: number
-  title?: string
+  keyword?: string
+  batch?: number
 }
 
 export interface createBlogInput {
@@ -12,3 +13,12 @@ export interface createBlogInput {
 }
 
 export const CREATE_BLOG_INPUT = ['title', 'link', 'written_date']
+
+export interface updateBlogInput {
+  id: number
+  title?: string
+  link?: string
+  written_date?: Date
+}
+
+export const UPDATE_BLOG_INPUT = ['title', 'link', 'written_date']

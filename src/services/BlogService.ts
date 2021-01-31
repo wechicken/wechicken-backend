@@ -1,18 +1,14 @@
 import prisma from '../prisma'
-import { blogsSearchOption, createBlogInput } from '../interfaces/Blog'
+import { blogsSearchOption, createBlogInput, updateBlogInput } from '../interfaces/Blog'
+import { Blog } from '../utils'
 
-const DEFAULT_SEARCH_OPTION = {
-  offset: 0,
-  limit: 30,
-}
-
-const getBlogs = ({ offset, limit, title }: blogsSearchOption) => {
-  const where = title ? { title: { contains: title } } : {}
+const getBlogs = (query: blogsSearchOption) => {
+  const { where, offset, limit } = Blog.makeBlogQueryOption(query)
 
   return prisma.blogs.findMany({
     where,
-    skip: offset || DEFAULT_SEARCH_OPTION.offset,
-    take: limit || DEFAULT_SEARCH_OPTION.limit,
+    skip: offset,
+    take: limit,
     include: {
       users: {
         select: {
@@ -34,17 +30,68 @@ const getBlogs = ({ offset, limit, title }: blogsSearchOption) => {
   })
 }
 
+const getBlogById = (id: number) => {
+  return prisma.blogs.findUnique({ where: { id }, include: { users: { select: { id: true } } } })
+}
+
 const createBlog = (data: createBlogInput) => {
   return prisma.blogs.create({ data: { ...data, written_date: new Date(data.written_date) } })
 }
 
-const updateBlog = () => {}
+const updateBlog = (data: updateBlogInput) => {
+  const { id, ...requestedFields } = data
+  return prisma.blogs.update({
+    where: { id: data.id },
+    data: { ...requestedFields, written_date: new Date(requestedFields.written_date) },
+  })
+}
 
-const deleteBlog = () => {}
+const deleteBlog = (id: number) => {
+  return prisma.blogs.update({ where: { id }, data: { deleted_at: new Date() } })
+}
+
+const handleLikes = async (blog_id: number, user_id: number) => {
+  const found = await prisma.likes.findFirst({
+    where: { user_id, blog_id },
+  })
+
+  if (!found)
+    return prisma.likes.create({
+      data: { blog_id, user_id, status: true },
+    })
+
+  const { id, status } = found
+
+  return prisma.likes.update({
+    where: { id },
+    data: { status: !status },
+  })
+}
+
+const handleBookmarks = async (blog_id: number, user_id: number) => {
+  const found = await prisma.bookmarks.findFirst({
+    where: { user_id, blog_id },
+  })
+
+  if (!found)
+    return prisma.bookmarks.create({
+      data: { blog_id, user_id, status: true },
+    })
+
+  const { id, status } = found
+
+  return prisma.bookmarks.update({
+    where: { id },
+    data: { status: !status },
+  })
+}
 
 export default {
   getBlogs,
+  getBlogById,
   createBlog,
   updateBlog,
   deleteBlog,
+  handleLikes,
+  handleBookmarks,
 }

@@ -10,11 +10,21 @@ const DEFAULT_HTTP_STATUS_MESSAGES = {
 
 export interface ErrorWithStatusCode extends Error {
   statusCode?: number
+  allowedKeys?: string[]
 }
 
-const errorGenerator = ({ message = '', statusCode = 500 }: { message?: string, statusCode: number}): void => {
+const errorGenerator = ({
+  message = '',
+  statusCode = 500,
+  allowedKeys = [],
+}: {
+  message?: string
+  statusCode: number
+  allowedKeys?: string[]
+}): void => {
   const err: ErrorWithStatusCode = new Error(message || DEFAULT_HTTP_STATUS_MESSAGES[statusCode])
   err.statusCode = statusCode
+  err.allowedKeys = allowedKeys
   throw err
 }
 

@@ -124,7 +124,7 @@ $ cp .env.example .env
 .env 파일 안에서 다음과 같이 DATABASE URL 설정하기
 
 ```
-DATABASE_URL_DEV = mysql://DB_USER:DB_USER_PASSWORD@localhost:3306/DB_NAME
+DATABASE_URL_DEV = mysql://DB_USER:DB_USER_PASSWORD@127.0.0.1:3306/DB_NAME
 ```
 
 - DB_USER: 데이터베이스에 접근 가능한 계정
@@ -158,11 +158,12 @@ $ npm run dev
 └── test.spec.ts
 ```
 
+#### Supertest, Jest 를 이용한 API 테스트
+
 - `config.ts`: 테스트 코드 내에서 공유 될 context 를 만드는 모듈
 - `test.spec.ts`: 테스트 코드의 싱글 스레드(runInBand 옵션)와 순서를 보장하기 위해서 각각의 test 코드를 구현하고 import 해서 실행 시키는 모듈
 - 테스트 코드에 대한 예가 tests 폴더 안에 코드로 구성되어 있음
 - 기본적으로 여러 input 과 output 에 대해 테스트 하기 위해 `test.each` 함수를 이용 함
-
 - `package.json` 에 ts-jest 를 사용하도록 스크립트 코드 작성 되어 있음
 
 ```
