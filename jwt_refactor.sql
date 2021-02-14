@@ -22,6 +22,7 @@ CREATE TABLE batches
     `nth`             INT            NOT NULL, 
     `title`           VARCHAR(45)    NULL, 
     `penalty`         INT            NULL, 
+    `count`           INT            NULL,
     `is_page_opened`  BOOLEAN        NOT NULL, 
     `created_at`      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP, 
     `updated_at`      DATETIME       NULL ON UPDATE CURRENT_TIMESTAMP, 

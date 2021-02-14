@@ -4,7 +4,7 @@ import { BlogController } from '../controllers'
 
 const router = Router()
 
-router.get('/', BlogController.getBlogs)
+router.get('/', validateToken, BlogController.getBlogs)
 router.post('/', validateToken, BlogController.createBlog)
 router.post('/:blogId/likes', validateToken, BlogController.handleLikes)
 router.post('/:blogId/bookmarks', validateToken, BlogController.handleBookmarks)
