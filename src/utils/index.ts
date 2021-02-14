@@ -1,4 +1,4 @@
-import validateFields from './validateFields'
+import Validation from './validation'
 import Blog from './Blog'
 
-export { validateFields, Blog }
+export { Validation, Blog }

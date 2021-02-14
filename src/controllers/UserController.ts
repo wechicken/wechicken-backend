@@ -1,32 +1,25 @@
 import jwt from 'jsonwebtoken'
 import { UserService } from '../services'
 import { errorWrapper, errorGenerator } from '../errors'
-import { validateFields } from '../utils'
+import { ValidationType, validateFields } from '../utils/validation'
 import { Request, Response } from 'express'
 import {
   createUserInput,
-  CREATE_USER_INPUT,
+  CreateUserInput,
   userUniqueSearchInput,
-  USER_UNIQUE_SEARCH_INPUT,
+  UserUniqueSearchInput,
 } from '../interfaces/User'
+import { ValidationError } from 'class-validator'
 const { AUTH_TOKEN_SALT } = process.env
 
 const signUp = errorWrapper(async (req: Request, res: Response) => {
-  const isAllValidFields = validateFields({
-    requested: Object.keys(req.body),
-    allowed: CREATE_USER_INPUT,
-    option: 'every',
+  const user = new CreateUserInput()
+  const validationErrors: ValidationError[] = await validateFields(user, req, {
+    type: ValidationType.Body,
   })
-
-  if (!isAllValidFields)
-    errorGenerator({
-      statusCode: 400,
-      message: '유저 회원가입 키 값 에러',
-      allowedKeys: CREATE_USER_INPUT,
-    })
+  if (validationErrors.length) errorGenerator({ statusCode: 400, validationErrors })
 
   const { gmail }: createUserInput = req.body
-
   const foundUser = await UserService.findUser({ gmail })
   if (foundUser) errorGenerator({ statusCode: 409 })
 
@@ -37,21 +30,13 @@ const signUp = errorWrapper(async (req: Request, res: Response) => {
 })
 
 const logIn = errorWrapper(async (req: Request, res: Response) => {
-  const isValidField = validateFields({
-    requested: Object.keys(req.body),
-    allowed: USER_UNIQUE_SEARCH_INPUT,
-    option: 'some',
+  const userUniqueSearchInput = new UserUniqueSearchInput()
+  const validationErrors: ValidationError[] = await validateFields(userUniqueSearchInput, req, {
+    type: ValidationType.Body,
   })
-
-  if (!isValidField)
-    errorGenerator({
-      statusCode: 400,
-      message: '유저 로그인 키 값 에러',
-      allowedKeys: USER_UNIQUE_SEARCH_INPUT,
-    })
+  if (validationErrors.length) errorGenerator({ statusCode: 400, validationErrors })
 
   const { gmail }: userUniqueSearchInput = req.body
-
   const foundUser = await UserService.findUser({ gmail })
   if (!foundUser) errorGenerator({ statusCode: 400, message: '해당 유저 존재하지 않음' })
 

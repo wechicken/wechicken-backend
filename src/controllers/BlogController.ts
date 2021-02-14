@@ -1,8 +1,9 @@
 import { errorGenerator, errorWrapper } from '../errors'
 import { Request, Response } from 'express'
 import { BlogService } from '../services'
-import { createBlogInput, CREATE_BLOG_INPUT, UPDATE_BLOG_INPUT } from '../interfaces/Blog'
-import { validateFields } from '../utils'
+import { createBlogInput, CreateBlogInput, UpdateBlogInput } from '../interfaces/Blog'
+import { validateFields, ValidationType } from '../utils/Validation'
+import { ValidationError } from 'class-validator'
 
 const getBlogs = errorWrapper(async (req: Request, res: Response) => {
   const blogs = await BlogService.getBlogs(req.query)
@@ -10,18 +11,12 @@ const getBlogs = errorWrapper(async (req: Request, res: Response) => {
 })
 
 const createBlog = errorWrapper(async (req: Request, res: Response) => {
-  const isAllValidFields = validateFields({
-    requested: Object.keys(req.body),
-    allowed: CREATE_BLOG_INPUT,
-    option: 'every',
+  const createBlogInput = new CreateBlogInput()
+  const validationErrors: ValidationError[] = await validateFields(createBlogInput, req, {
+    type: ValidationType.Body,
   })
 
-  if (!isAllValidFields)
-    errorGenerator({
-      statusCode: 400,
-      message: '블로그 생성 키 값 에러',
-      allowedKeys: CREATE_BLOG_INPUT,
-    })
+  if (validationErrors.length) errorGenerator({ statusCode: 400, validationErrors })
 
   const { id: user_id } = req.foundUser
   const { title, link, written_date }: createBlogInput = req.body
@@ -37,18 +32,13 @@ const createBlog = errorWrapper(async (req: Request, res: Response) => {
 })
 
 const updateBlog = errorWrapper(async (req: Request, res: Response) => {
-  const isAllValidFields = validateFields({
-    requested: Object.keys(req.body),
-    allowed: UPDATE_BLOG_INPUT,
-    option: 'every',
+  const updateBlogInput = new UpdateBlogInput()
+  const validationErrors: ValidationError[] = await validateFields(updateBlogInput, req, {
+    type: ValidationType.Body,
+    skip: true,
   })
 
-  if (!isAllValidFields)
-    errorGenerator({
-      statusCode: 400,
-      message: '블로그 수정 키 값 에러',
-      allowedKeys: UPDATE_BLOG_INPUT,
-    })
+  if (validationErrors.length) errorGenerator({ statusCode: 400, validationErrors })
 
   const { blogId } = req.params
 

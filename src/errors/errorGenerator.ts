@@ -1,3 +1,4 @@
+import { ValidationError } from 'class-validator'
 const DEFAULT_HTTP_STATUS_MESSAGES = {
   400: 'Bad Requests',
   401: 'Unauthorized',
@@ -10,21 +11,21 @@ const DEFAULT_HTTP_STATUS_MESSAGES = {
 
 export interface ErrorWithStatusCode extends Error {
   statusCode?: number
-  allowedKeys?: string[]
+  validationErrors?: ValidationError[]
 }
 
 const errorGenerator = ({
-  message = '',
   statusCode = 500,
-  allowedKeys = [],
+  message = '',
+  validationErrors = [],
 }: {
-  message?: string
   statusCode: number
-  allowedKeys?: string[]
+  message?: string
+  validationErrors?: ValidationError[]
 }): void => {
   const err: ErrorWithStatusCode = new Error(message || DEFAULT_HTTP_STATUS_MESSAGES[statusCode])
   err.statusCode = statusCode
-  err.allowedKeys = allowedKeys
+  err.validationErrors = validationErrors
   throw err
 }
 

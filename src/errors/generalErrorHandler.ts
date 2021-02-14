@@ -7,12 +7,17 @@ const generalErrorHandler: ErrorRequestHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const { message, statusCode, allowedKeys } = err
+  const { message, statusCode, validationErrors } = err
   const errorResponse = Object.assign(
     {
       message,
     },
-    statusCode === 400 && allowedKeys.length && { allowedKeys }
+    statusCode === 400 &&
+      validationErrors.length && {
+        validationErrors: validationErrors.map(({ property, constraints }) => ({
+          [property]: constraints,
+        })),
+      }
   )
   console.error(err)
   res.status(statusCode || 500).json(errorResponse)
