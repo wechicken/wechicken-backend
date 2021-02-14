@@ -21,6 +21,7 @@ model batches {
   nth            Int         @unique
   title          String?
   penalty        Int?
+  count          Int?
   is_page_opened Boolean
   created_at     DateTime    @default(now())
   updated_at     DateTime?

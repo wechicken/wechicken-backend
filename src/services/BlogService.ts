@@ -1,17 +1,38 @@
 import prisma from '../prisma'
 import { blogsSearchOption, createBlogInput, updateBlogInput } from '../interfaces/Blog'
-import { Blog } from '../utils'
+import { Blog, time } from '../utils'
 
-const getBlogs = (query: blogsSearchOption) => {
+const getBlogs = (query: blogsSearchOption, user_id: number) => {
   const { where, offset, limit } = Blog.makeBlogQueryOption(query)
 
   return prisma.blogs.findMany({
     where,
     skip: offset,
     take: limit,
-    include: {
+    select: {
+      id: true,
+      link: true,
+      title: true,
+      subtitle: true,
+      thumbnail: true,
+      written_date: true,
+      likes: !!user_id && {
+        where: { user_id, status: true },
+        select: {
+          user_id: true,
+          status: true,
+        },
+      },
+      bookmarks: !!user_id && {
+        where: { user_id, status: true },
+        select: {
+          user_id: true,
+          status: true,
+        },
+      },
       users: {
         select: {
+          id: true,
           name: true,
           batches: {
             select: {
@@ -35,19 +56,28 @@ const getBlogById = (id: number) => {
 }
 
 const createBlog = (data: createBlogInput) => {
-  return prisma.blogs.create({ data: { ...data, written_date: new Date(data.written_date) } })
+  return prisma.blogs.create({
+    data: {
+      ...data,
+      written_date: time.convertTimeWithUTC(data.written_date),
+      created_at: time.currentTime(),
+    },
+  })
 }
 
 const updateBlog = (data: updateBlogInput) => {
   const { id, ...requestedFields } = data
   return prisma.blogs.update({
-    where: { id: data.id },
-    data: { ...requestedFields, written_date: new Date(requestedFields.written_date) },
+    where: { id },
+    data: {
+      ...requestedFields,
+      written_date: time.convertTimeWithUTC(requestedFields.written_date),
+    },
   })
 }
 
 const deleteBlog = (id: number) => {
-  return prisma.blogs.update({ where: { id }, data: { deleted_at: new Date() } })
+  return prisma.blogs.update({ where: { id }, data: { deleted_at: time.currentTime() } })
 }
 
 const handleLikes = async (blog_id: number, user_id: number) => {

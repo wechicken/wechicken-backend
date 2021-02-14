@@ -6,7 +6,13 @@ import { validateFields, ValidationType } from '../utils/Validation'
 import { ValidationError } from 'class-validator'
 
 const getBlogs = errorWrapper(async (req: Request, res: Response) => {
-  const blogs = await BlogService.getBlogs(req.query)
+  const user_id = req.foundUser?.id
+  const foundBlogs = await BlogService.getBlogs(req.query, user_id)
+  const blogs = foundBlogs.map(({ bookmarks, likes, ...blog }) => ({
+    isLiked: !!likes?.length,
+    isBookmarked: !!bookmarks?.length,
+    ...blog,
+  }))
   res.status(200).json({ blogs })
 })
 

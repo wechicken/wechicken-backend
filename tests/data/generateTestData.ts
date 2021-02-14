@@ -1,6 +1,7 @@
 import faker from 'faker'
 import fs from 'fs'
 import { BATCHES_COUNT, USERS_COUNT, BLOGS_COUNT } from '../config'
+import dayjs from 'dayjs'
 
 const getRandomIntInclusive = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1) + min)
@@ -17,7 +18,10 @@ const createBatches = (length: number) =>
     return {
       nth: idx + 1,
       batch_type_id: idx + 1,
-      is_page_opened: false,
+      is_page_opened: true,
+      penalty: 1000 * (idx + 1),
+      count: getRandomIntInclusive(2, 3),
+      title: faker.internet.userName(),
     }
   })
 
@@ -31,7 +35,7 @@ const createUsers = (length: number) =>
       gmail: `${name}@test.com`,
       gmail_id: faker.random.uuid(),
       is_admin: false,
-      is_group_joined: false,
+      is_group_joined: true,
       blog_address: `https://${BLOG_TYPES[blog_type_id]}.com/${name}`,
       blog_type_id,
       batch_id: getRandomIntInclusive(1, 3),
@@ -41,12 +45,10 @@ const createUsers = (length: number) =>
 const createBlogs = (length: number) =>
   [...new Array(length)].map((_) => {
     return {
-      user_id: getRandomIntInclusive(1, 10),
+      user_id: getRandomIntInclusive(1, 20),
       title: faker.commerce.productName(),
       link: faker.internet.url(),
-      written_date: new Date(
-        `${2020}-${getRandomIntInclusive(1, 12)}-${getRandomIntInclusive(1, 30)}`
-      ),
+      written_date: dayjs(`${2021}-${2}-${getRandomIntInclusive(1, 14)}`).add(9, 'hours'),
     }
   })
 
