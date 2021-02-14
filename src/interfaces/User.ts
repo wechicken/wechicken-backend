@@ -1,3 +1,5 @@
+import { IsEmail, IsInt, IsString, IsBoolean, Length, IsUrl } from 'class-validator'
+
 export interface createUserInput {
   nth: number
   batch_type_id: number
@@ -9,16 +11,34 @@ export interface createUserInput {
   blog_address: string
 }
 
-export const CREATE_USER_INPUT = [
-  'nth',
-  'batch_type_id',
-  'gmail',
-  'gmail_id',
-  'is_admin',
-  'is_group_joined',
-  'name',
-  'blog_address',
-]
+export class CreateUserInput {
+  @IsInt()
+  nth: number
+
+  @IsInt()
+  batch_type_id: number
+
+  @IsEmail()
+  gmail: string
+
+  @IsString()
+  @Length(5)
+  gmail_id: string
+
+  @IsBoolean()
+  is_admin: boolean
+
+  @IsBoolean()
+  is_group_joined: boolean
+
+  @IsString()
+  @Length(2)
+  name: string
+
+  @IsUrl()
+  @Length(5)
+  blog_address: string
+}
 
 export interface userUniqueSearchInput {
   id?: number
@@ -26,4 +46,7 @@ export interface userUniqueSearchInput {
   gmail?: string
 }
 
-export const USER_UNIQUE_SEARCH_INPUT = ['id', 'gmail_id', 'gmail']
+export class UserUniqueSearchInput {
+  @IsEmail()
+  gmail: string
+}

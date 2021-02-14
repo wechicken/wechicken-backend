@@ -1,3 +1,5 @@
+import { IsString, IsNotEmpty, IsUrl, IsDateString } from 'class-validator'
+
 export interface blogsSearchOption {
   offset?: number
   limit?: number
@@ -12,7 +14,19 @@ export interface createBlogInput {
   written_date: Date
 }
 
-export const CREATE_BLOG_INPUT = ['title', 'link', 'written_date']
+export class CreateBlogInput {
+  @IsNotEmpty()
+  @IsString()
+  title: string
+
+  @IsNotEmpty()
+  @IsUrl()
+  link: string
+
+  @IsNotEmpty()
+  @IsDateString()
+  written_date: Date
+}
 
 export interface updateBlogInput {
   id: number
@@ -21,4 +35,16 @@ export interface updateBlogInput {
   written_date?: Date
 }
 
-export const UPDATE_BLOG_INPUT = ['title', 'link', 'written_date']
+export class UpdateBlogInput {
+  @IsNotEmpty()
+  @IsString()
+  title: string
+
+  @IsNotEmpty()
+  @IsUrl()
+  link: string
+
+  @IsNotEmpty()
+  @IsDateString()
+  written_date: Date
+}
